@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Send } from "lucide-react";
+import { Send, Sparkles } from "lucide-react";
 
 import {
   askQuestion,
@@ -103,22 +103,51 @@ export default function ChatPanel({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleAsk();
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-3">
+    <div className="chat-panel-root">
       <div className="chat-window">
         {loadingHistory ? (
           <div className="flex h-full items-center justify-center text-center">
             <p className="text-sm text-[var(--muted)]">Loading chat history...</p>
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-center">
-            <div>
-              <p className="text-sm font-medium text-[var(--text)]">
-                Ask your first question
-              </p>
-              <p className="mt-1 text-sm text-[var(--muted)]">
-                Answers are generated from documents in this workspace.
-              </p>
+          <div className="flex h-full flex-col items-center justify-center text-center px-4 py-8">
+            <div className="empty-chat-icon-wrapper">
+              <Sparkles className="h-5 w-5 text-[var(--accent)]" />
+            </div>
+            <h3 className="empty-chat-title">ThinkLM Research Assistant</h3>
+            <p className="empty-chat-subtitle">
+              Ask questions, analyze concepts, or extract insights grounded in your workspace documents.
+            </p>
+            <div className="empty-chat-suggestions">
+              <button
+                type="button"
+                className="suggestion-pill"
+                onClick={() => setQuestion("Summarize the key findings in this document.")}
+              >
+                Summarize document findings
+              </button>
+              <button
+                type="button"
+                className="suggestion-pill"
+                onClick={() => setQuestion("What are the core technologies or concepts discussed?")}
+              >
+                What are the core concepts discussed?
+              </button>
+              <button
+                type="button"
+                className="suggestion-pill"
+                onClick={() => setQuestion("Analyze the strengths and limitations mentioned.")}
+              >
+                Analyze strengths & limitations
+              </button>
             </div>
           </div>
         ) : (
@@ -132,26 +161,29 @@ export default function ChatPanel({
         )}
 
         {loading && (
-          <div className="message-bubble message-assistant">
-            Thinking...
+          <div className="chat-thinking-indicator">
+            <span className="thinking-dot" />
+            <span className="thinking-dot" />
+            <span className="thinking-dot" />
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-[1fr_auto] gap-2">
+      {/* ── Premium bottom input bar ── */}
+      <div className="chat-input-bar">
         <textarea
           value={question}
-          onChange={(event) => setQuestion(event.target.value)}
-          placeholder="Ask a question..."
-          rows={2}
-          className="field textarea-field"
+          onChange={(e) => setQuestion(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask a question…"
+          rows={1}
+          className="chat-input-textarea"
         />
-
         <button
           onClick={handleAsk}
           disabled={loading || !question.trim()}
-          title="Send question"
-          className="icon-button self-end"
+          aria-label="Send"
+          className="chat-send-btn"
         >
           <Send className="h-4 w-4" />
         </button>

@@ -2,9 +2,10 @@ import { prisma } from "../../prisma";
 
 interface UploadDocumentInput {
   filename: string;
-  filepath: string;
+  filepath?: string | null;
   mimetype: string;
   size: number;
+  fileData: Buffer;
   workspaceId: string;
 }
 
@@ -14,7 +15,10 @@ export const uploadDocumentService =
   ) => {
     const document =
       await prisma.document.create({
-        data,
+        data: {
+          ...data,
+          fileData: data.fileData as any,
+        },
       });
 
     return document;

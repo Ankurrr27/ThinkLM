@@ -35,9 +35,10 @@ model Document {
   id String @id @default(cuid())
 
   filename String
-  filepath String
+  filepath String?
   mimetype String
   size     Int
+  fileData Bytes?
 
   uploadedAt DateTime @default(now())
 

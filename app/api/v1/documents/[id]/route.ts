@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthUserId } from "@/lib/server/utils/auth";
 import { getWorkspaceDocumentsService, deleteDocumentService } from "@/lib/server/services/document.service";
 import { verifyWorkspaceAccess } from "@/lib/server/utils/workspace-auth.utils";
-import fs from "fs/promises";
 
 export async function GET(
   req: NextRequest,
@@ -45,10 +44,6 @@ export async function DELETE(
     const { id: documentId } = await params;
 
     const document = await deleteDocumentService(documentId, userId);
-
-    if (document.filepath) {
-      await fs.unlink(document.filepath).catch(() => undefined);
-    }
 
     return NextResponse.json(
       { success: true, data: document },

@@ -6,12 +6,8 @@ import { extractTextFromPDF } from "@/lib/server/utils/pdf.utils";
 import { chunkText } from "@/lib/server/utils/chunk.utils";
 import { getEmbedding } from "@/lib/server/utils/embeddings.utils";
 import { storeChunkEmbedding } from "@/lib/server/utils/vector.utils";
-import fs from "fs/promises";
-import path from "path";
-import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
-  let filepath = "";
   try {
     const userId = getAuthUserId(req);
     if (!userId) {
@@ -33,24 +29,16 @@ export async function POST(req: NextRequest) {
     await verifyWorkspaceAccess(workspaceId, userId);
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const uploadDir = path.join(process.cwd(), "uploads");
-    await fs.mkdir(uploadDir, { recursive: true });
-    
-    const randomName = crypto.randomBytes(16).toString("hex");
-    const extension = path.extname(file.name);
-    const filename = `${randomName}${extension}`;
-    filepath = path.join(uploadDir, filename);
 
-    await fs.writeFile(filepath, buffer);
-
-    const extractedText = await extractTextFromPDF(filepath);
+    const extractedText = await extractTextFromPDF(buffer);
     const chunks = chunkText(extractedText);
     
     const document = await uploadDocumentService({
       filename: file.name,
-      filepath: filepath,
+      filepath: null,
       mimetype: file.type,
       size: file.size,
+      fileData: buffer,
       workspaceId,
     });
 
@@ -71,9 +59,6 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
-    if (filepath) {
-      await fs.unlink(filepath).catch(() => undefined);
-    }
     return NextResponse.json(
       { success: false, message: error.message || "Failed to upload document" },
       { status: 400 }

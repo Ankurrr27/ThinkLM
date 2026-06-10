@@ -2,20 +2,21 @@
 
 import { useState, useCallback } from "react";
 import Sidebar from "./Sidebar";
-import Logo from "./Logo";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 
 export default function AppLayout({
   children,
   workspaceId,
+  rightPanel,
 }: {
   children: React.ReactNode;
   workspaceId?: string;
+  rightPanel?: React.ReactNode;
 }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [leftOpen, setLeftOpen] = useState(false);
 
-  const open  = useCallback(() => setMobileOpen(true), []);
-  const close = useCallback(() => setMobileOpen(false), []);
+  const openLeft  = useCallback(() => setLeftOpen(true), []);
+  const closeLeft = useCallback(() => setLeftOpen(false), []);
 
   return (
     <div className="app-shell">
@@ -24,26 +25,32 @@ export default function AppLayout({
         <button
           type="button"
           className="mobile-hamburger"
-          aria-label="Open menu"
-          onClick={open}
+          aria-label="Open navigation"
+          onClick={openLeft}
         >
           <Menu className="h-5 w-5" />
         </button>
-        <Logo size={26} showText showIcon={false} />
+
+        <span className="mobile-header-title">ThinkLM</span>
+
+        {/* Right slot injected by workspace page for docs drawer trigger */}
+        <div className="mobile-header-right">
+          {rightPanel}
+        </div>
       </header>
 
       <div className="app-frame">
-        {/* ── Backdrop (mobile only) ── */}
-        {mobileOpen && (
+        {/* ── Left sidebar backdrop (mobile only) ── */}
+        {leftOpen && (
           <div
             className="sidebar-backdrop"
             aria-hidden="true"
-            onClick={close}
+            onClick={closeLeft}
           />
         )}
 
-        {/* ── Sidebar ── */}
-        <Sidebar mobileOpen={mobileOpen} onClose={close} workspaceId={workspaceId} />
+        {/* ── Left Sidebar ── */}
+        <Sidebar mobileOpen={leftOpen} onClose={closeLeft} workspaceId={workspaceId} />
 
         {/* ── Main content ── */}
         <main className="app-main">
