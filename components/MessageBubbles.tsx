@@ -115,7 +115,7 @@ export default function MessageBubble({
           : "message-assistant"
       }`}
     >
-      {isUser ? content : <div className="space-y-1">{renderContent(content)}</div>}
+      {isUser ? content : <>{renderContent(content)}</>}
     </div>
   );
 }

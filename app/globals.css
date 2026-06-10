@@ -103,7 +103,7 @@ button:disabled {
 .app-content {
   width: min(100%, 1440px);
   margin: 0 auto;
-  padding: 24px;
+  padding: 18px 20px;
 }
 
 .sidebar {
@@ -262,17 +262,17 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  border-radius: 8px;
+  gap: 6px;
+  border-radius: 7px;
   border: 1px solid transparent;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
 .sidebar-action,
 .primary-button {
-  height: 38px;
+  height: 34px;
   background: var(--accent);
   color: #ffffff;
 }
@@ -285,14 +285,14 @@ button:disabled {
 
 .theme-toggle,
 .secondary-button {
-  height: 38px;
+  height: 34px;
   border-color: var(--border);
   background: var(--surface-muted);
   color: var(--muted);
 }
 
 .theme-toggle {
-  padding: 0 12px;
+  padding: 0 10px;
   white-space: nowrap;
 }
 
@@ -310,13 +310,13 @@ button:disabled {
 
 .danger-icon-button {
   display: inline-flex;
-  height: 30px;
-  width: 30px;
+  height: 26px;
+  width: 26px;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
   border: 1px solid transparent;
-  border-radius: 7px;
+  border-radius: 6px;
   background: transparent;
   color: var(--faint);
   transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
@@ -329,8 +329,8 @@ button:disabled {
 }
 
 .icon-button {
-  height: 42px;
-  width: 42px;
+  height: 36px;
+  width: 36px;
   background: var(--accent);
   color: #ffffff;
 }
@@ -376,10 +376,11 @@ button:disabled {
 
 .empty-state {
   border: 1px dashed var(--border);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 7px;
+  padding: 10px;
   color: var(--faint);
-  font-size: 14px;
+  font-size: 12px;
+  text-align: center;
 }
 
 .panel {
@@ -392,48 +393,50 @@ button:disabled {
 
 .panel-header {
   display: flex;
-  min-height: 48px;
+  min-height: 40px;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   border-bottom: 1px solid var(--border);
-  padding: 12px 14px;
+  padding: 8px 12px;
 }
 
 .panel-title {
   color: var(--text);
-  font-size: 14px;
-  font-weight: 650;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
 }
 
 .panel-body {
-  padding: 14px;
+  padding: 12px;
 }
 
 .page-title {
   color: var(--text);
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.15;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .page-subtitle {
-  margin-top: 4px;
+  margin-top: 2px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .field {
-  min-height: 40px;
+  min-height: 36px;
   width: 100%;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 7px;
   background: var(--surface-strong);
   color: var(--text);
   outline: none;
-  padding: 0 12px;
-  font-size: 14px;
+  padding: 0 10px;
+  font-size: 13px;
   transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
 }
 
@@ -447,9 +450,9 @@ button:disabled {
 }
 
 .textarea-field {
-  min-height: 44px;
+  min-height: 40px;
   resize: none;
-  padding: 10px 12px;
+  padding: 9px 10px;
 }
 
 .file-field {
@@ -476,50 +479,59 @@ button:disabled {
 .list-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 7px;
   background: var(--surface-strong);
-  padding: 10px 12px;
+  padding: 7px 10px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .chat-window {
   display: flex;
   flex-direction: column;
-  height: min(58vh, 560px);
-  min-height: 380px;
+  height: min(62vh, 600px);
+  min-height: 360px;
   overflow-y: auto;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 96%, transparent), color-mix(in srgb, var(--surface) 96%, transparent));
-  padding: 14px;
+  border-radius: 8px;
+  background: var(--surface-strong);
+  padding: 10px 12px;
+  gap: 2px;
+  scroll-behavior: smooth;
+  /* hide scrollbar — still scrollable */
+  scrollbar-width: none;
+}
+
+.chat-window::-webkit-scrollbar {
+  display: none;
 }
 
 .message-bubble {
-  margin-bottom: 12px;
-  max-width: 80%;
-  border-radius: 12px;
-  padding: 10px 14px;
-  font-size: 14px;
-  line-height: 1.6;
+  margin-bottom: 4px;
+  max-width: 82%;
+  border-radius: 10px;
+  padding: 7px 11px;
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .message-user {
   align-self: flex-end;
   background: var(--accent);
   color: #ffffff;
-  border-bottom-right-radius: 2px;
+  border-bottom-right-radius: 3px;
 }
 
 .message-assistant {
   align-self: flex-start;
-  border: 1px solid var(--border);
-  background: var(--surface-muted);
+  max-width: 96%;
+  background: transparent;
+  border: none;
+  padding: 2px 0;
   color: var(--text);
-  border-bottom-left-radius: 2px;
+  font-size: 13px;
 }
 
 .message-assistant ul {
@@ -542,51 +554,213 @@ button:disabled {
   backdrop-filter: blur(18px);
 }
 
+/* ───────────────────────────────────────────────
+   Mobile header (hamburger bar) — hidden on desktop
+─────────────────────────────────────────────── */
+.mobile-header {
+  display: none;
+}
+
+.mobile-hamburger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  width: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  color: var(--muted);
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.mobile-hamburger:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Mobile sidebar close (X) button — hidden on desktop */
+.sidebar-mobile-close {
+  display: none;
+}
+
+/* Dim backdrop when sidebar drawer is open */
+.sidebar-backdrop {
+  display: none;
+}
+
+/* ───────────────────────────────────────────────
+   Mobile breakpoint  ≤ 900 px
+─────────────────────────────────────────────── */
 @media (max-width: 900px) {
-  .app-frame {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    border-right: 0;
+  /* Show the sticky top header */
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: 52px;
+    padding: 0 14px;
     border-bottom: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface-strong) 92%, transparent);
+    backdrop-filter: blur(14px);
   }
 
-  .app-content {
+  /* App frame stays as a row — sidebar is a drawer */
+  .app-frame {
+    position: relative;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* Dim backdrop */
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 49;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    animation: fade-in 180ms ease;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* Sidebar: fixed drawer, slides in from left */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 50;
+    width: 280px;
+    border-right: 1px solid var(--border);
+    transform: translateX(-100%);
+    transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+  }
+
+  /* When open, slide into view */
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 40px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Hide the desktop collapse toggle on mobile */
+  .sidebar-toggle-btn {
+    display: none;
+  }
+
+  /* Show the X close button inside the sidebar */
+  .sidebar-mobile-close {
+    display: inline-flex;
+    align-self: flex-end;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    width: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface-muted);
+    color: var(--muted);
+    margin-bottom: 8px;
+    transition: background 160ms ease, color 160ms ease;
+    flex-shrink: 0;
+  }
+
+  .sidebar-mobile-close:hover {
+    background: color-mix(in srgb, var(--danger) 12%, transparent);
+    color: var(--danger);
+  }
+
+  /* Remove collapsed behaviour on mobile — always full width */
+  .sidebar.collapsed {
+    width: 280px;
     padding: 16px;
   }
 
-  .sidebar {
-    gap: 10px;
+  .sidebar.collapsed .brand-title,
+  .sidebar.collapsed .sidebar-action span,
+  .sidebar.collapsed .nav-label,
+  .sidebar.collapsed .workspace-link span,
+  .sidebar.collapsed .secondary-button span,
+  .sidebar.collapsed .theme-toggle span {
+    display: unset;
   }
 
-  .sidebar-controls {
-    margin-top: 4px;
+  .sidebar.collapsed .sidebar-action {
+    justify-content: flex-start;
+    width: auto;
+    padding: 0 12px;
   }
 
-  .nav-label {
-    margin-top: 8px;
+  .sidebar.collapsed .secondary-button {
+    justify-content: flex-start;
+    width: 100%;
+    padding: 0 12px;
+    height: 38px;
+    margin: 0;
   }
 
+  .sidebar.collapsed .workspace-link {
+    justify-content: flex-start;
+    padding: 9px 10px;
+  }
+
+  .sidebar.collapsed .sidebar-controls {
+    grid-template-columns: 1fr auto;
+    justify-items: unset;
+  }
+
+  /* Full-height chat window — edge to edge */
   .chat-window {
-    height: 52vh;
-    min-height: 300px;
+    height: calc(100dvh - 52px - 110px);
+    min-height: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    padding: 10px 14px;
+  }
+
+  /* Panels go wall-to-wall on mobile */
+  .app-content {
+    padding: 0;
+  }
+
+  .panel {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
+  }
+
+  .panel + .panel,
+  section + section {
+    border-top: 1px solid var(--border);
+  }
+
+  /* Page header gets its own padding */
+  .page-title,
+  .page-subtitle {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .mb-4 {
+    padding: 12px 14px 0;
   }
 }
 
+/* ───────────────────────────────────────────────
+   Small phones  ≤ 560 px
+─────────────────────────────────────────────── */
 @media (max-width: 560px) {
-  .sidebar-controls {
-    grid-template-columns: 1fr;
-  }
-
-  .theme-toggle,
-  .sidebar-action {
-    width: 100%;
-  }
-
   .page-title {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .panel-header {
@@ -596,5 +770,15 @@ button:disabled {
 
   .auth-card {
     padding: 20px;
+    margin: 0 14px;
+  }
+
+  .message-bubble {
+    max-width: 92%;
+  }
+
+  .chat-window {
+    height: calc(100dvh - 52px - 100px);
+    padding: 8px 10px;
   }
 }
