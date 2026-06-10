@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+
+  workspaces Workspace[]
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  documents Document[]
+  chats     Chat[]
+}
+
+model Document {
+  id String @id @default(cuid())
+
+  filename String
+  filepath String
+  mimetype String
+  size     Int
+
+  uploadedAt DateTime @default(now())
+
+  workspaceId String
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id])
+  chunks      DocumentChunk[]
+}
+
+model DocumentChunk {
+  id String @id @default(cuid())
+
+  content String
+
+  embedding Unsupported("vector(384)")
+
+  chunkIndex Int
+
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Chat {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  messages Message[]
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+
+  chatId String
+  chat   Chat   @relation(fields: [chatId], references: [id])
+}
+
