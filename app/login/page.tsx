@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { login } from "../../services/auth";
@@ -11,10 +11,21 @@ import { useWorkspaces } from "../../components/WorkspaceProvider";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
   const { refreshWorkspaces } = useWorkspaces();
+
+  useEffect(() => {
+    const token =
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("token");
+
+    if (token) {
+      router.replace("/dashboard");
+    }
+  }, [router]);
 
   const handleLogin = async () => {
     if (!email.trim() || !password) {
@@ -24,19 +35,39 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
-      const data = await login(email.trim(), password);
 
-      localStorage.setItem("token", data.data.token);
+      const data = await login(
+        email.trim(),
+        password
+      );
+
+      if (rememberMe) {
+        localStorage.setItem(
+          "token",
+          data.data.token
+        );
+      } else {
+        sessionStorage.setItem(
+          "token",
+          data.data.token
+        );
+      }
+
       await refreshWorkspaces();
-      router.push("/dashboard");
+
+      router.replace("/dashboard");
     } catch (error) {
       console.log(error);
+
       const message =
         axios.isAxiosError(error)
           ? error.response?.data?.message
           : undefined;
 
-      alert(message || "Login failed. Check your credentials.");
+      alert(
+        message ||
+        "Login failed. Check your credentials."
+      );
     } finally {
       setLoading(false);
     }
@@ -52,7 +83,11 @@ export default function LoginPage() {
         <p className="text-xs font-bold uppercase tracking-wide text-[var(--accent)]">
           AI Research
         </p>
-        <h1 className="mt-2 text-2xl font-bold text-[var(--text)]">Login</h1>
+
+        <h1 className="mt-2 text-2xl font-bold text-[var(--text)]">
+          Login
+        </h1>
+
         <p className="mt-1 text-sm text-[var(--muted)]">
           Continue to your premium research workspace.
         </p>
@@ -62,7 +97,9 @@ export default function LoginPage() {
             className="field"
             placeholder="Email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(e) =>
+              setEmail(e.target.value)
+            }
           />
 
           <input
@@ -70,21 +107,39 @@ export default function LoginPage() {
             className="field"
             placeholder="Password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
           />
+
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) =>
+                setRememberMe(e.target.checked)
+              }
+            />
+            Remember me
+          </label>
 
           <button
             disabled={loading}
             onClick={handleLogin}
             className="primary-button w-full"
           >
-            {loading ? "Signing in..." : "Login"}
+            {loading
+              ? "Signing in..."
+              : "Login"}
           </button>
         </div>
 
         <p className="mt-4 text-center text-sm text-[var(--muted)]">
           No account?{" "}
-          <Link href="/signup" className="font-semibold text-[var(--accent)] no-underline">
+          <Link
+            href="/signup"
+            className="font-semibold text-[var(--accent)] no-underline"
+          >
             Sign up
           </Link>
         </p>
