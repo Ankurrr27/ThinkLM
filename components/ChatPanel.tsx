@@ -1,12 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Send, Sparkles } from "lucide-react";
 
-import {
-  askQuestion,
-  getChatHistory,
-} from "../services/chat";
+import { askQuestion, getChatHistory } from "../services/chat";
 import MessageBubble from "./MessageBubbles";
 
 interface Message {
@@ -14,15 +11,12 @@ interface Message {
   content: string;
 }
 
-export default function ChatPanel({
-  workspaceId,
-}: {
-  workspaceId: string;
-}) {
+export default function ChatPanel({ workspaceId }: { workspaceId: string }) {
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const loadChatHistory = async () => {
@@ -44,6 +38,12 @@ export default function ChatPanel({
 
     loadChatHistory();
   }, [workspaceId]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages, loading]);
 
   const handleAsk = async () => {
     if (!workspaceId) {
@@ -75,11 +75,7 @@ export default function ChatPanel({
     try {
       setLoading(true);
 
-      const response = await askQuestion(
-        currentQuestion,
-        workspaceId,
-        token
-      );
+      const response = await askQuestion(currentQuestion, workspaceId, token);
 
       setMessages((prev) => [
         ...prev,
@@ -115,7 +111,9 @@ export default function ChatPanel({
       <div className="chat-window">
         {loadingHistory ? (
           <div className="flex h-full items-center justify-center text-center">
-            <p className="text-sm text-[var(--muted)]">Loading chat history...</p>
+            <p className="text-sm text-[var(--muted)]">
+              Loading chat history...
+            </p>
           </div>
         ) : messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center px-4 py-8">
@@ -124,27 +122,38 @@ export default function ChatPanel({
             </div>
             <h3 className="empty-chat-title">ThinkLM Research Assistant</h3>
             <p className="empty-chat-subtitle">
-              Ask questions, analyze concepts, or extract insights grounded in your workspace documents.
+              Ask questions, analyze concepts, or extract insights grounded in
+              your workspace documents.
             </p>
             <div className="empty-chat-suggestions">
               <button
                 type="button"
                 className="suggestion-pill"
-                onClick={() => setQuestion("Summarize the key findings in this document.")}
+                onClick={() =>
+                  setQuestion("Summarize the key findings in this document.")
+                }
               >
                 Summarize document findings
               </button>
               <button
                 type="button"
                 className="suggestion-pill"
-                onClick={() => setQuestion("What are the core technologies or concepts discussed?")}
+                onClick={() =>
+                  setQuestion(
+                    "What are the core technologies or concepts discussed?",
+                  )
+                }
               >
                 What are the core concepts discussed?
               </button>
               <button
                 type="button"
                 className="suggestion-pill"
-                onClick={() => setQuestion("Analyze the strengths and limitations mentioned.")}
+                onClick={() =>
+                  setQuestion(
+                    "Analyze the strengths and limitations mentioned.",
+                  )
+                }
               >
                 Analyze strengths & limitations
               </button>
@@ -159,6 +168,8 @@ export default function ChatPanel({
             />
           ))
         )}
+
+        <div ref={bottomRef} />
 
         {loading && (
           <div className="chat-thinking-indicator">
