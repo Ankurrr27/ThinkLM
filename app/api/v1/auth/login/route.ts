@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
+    console.error("Login API Error:", error);
     return NextResponse.json(
       { success: false, message: error.message || "Login failed" },
       { status: 400 }

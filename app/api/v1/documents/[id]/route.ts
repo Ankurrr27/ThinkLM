@@ -24,6 +24,7 @@ export async function GET(
       { status: 200 }
     );
   } catch (error: any) {
+    console.error("GET Documents Error:", error);
     const status = error.message?.includes("Unauthorized") ? 401
       : error.message?.includes("not found") ? 404
       : 400;
@@ -53,6 +54,7 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error: any) {
+    console.error("DELETE Document Error:", error);
     const status = error.message?.includes("Unauthorized") ? 401
       : error.message?.includes("not found") ? 404
       : 400;

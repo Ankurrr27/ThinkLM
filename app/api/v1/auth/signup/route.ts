@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
+    console.error("Signup API Error:", error);
     return NextResponse.json(
       { success: false, message: error.message || "Signup failed" },
       { status: 400 }

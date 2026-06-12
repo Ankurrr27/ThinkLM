@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
+    console.error("GET Workspaces Error:", error);
     return NextResponse.json(
       { success: false, message: error.message || "Failed to fetch workspaces" },
       { status: 400 }
@@ -40,6 +41,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
+    console.error("POST Workspace Error:", error);
     return NextResponse.json(
       { success: false, message: error.message || "Failed to create workspace" },
       { status: 400 }
