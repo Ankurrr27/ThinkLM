@@ -1,44 +1,40 @@
-import { createRequire } from "node:module";
+/**
+ * PDF text extraction using Gemini API.
+ *
+ * pdf-parse uses native Node.js filesystem modules that break in Vercel
+ * serverless environments. We now extract text exclusively via the Gemini
+ * Files API / inline-data approach so this works on Vercel (and locally).
+ */
+
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const require = createRequire(import.meta.url);
-const pdfParse = require("pdf-parse");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-export const extractTextFromPDF =
-  async (dataBuffer: Buffer) => {
-    let text = "";
-    try {
-      const pdfData = await pdfParse(dataBuffer);
-      text = pdfData.text || "";
-    } catch (err) {
-      console.error("Standard PDF parse failed, falling back to Gemini:", err);
-    }
+export const extractTextFromPDF = async (
+  dataBuffer: Buffer
+): Promise<string> => {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    if (text.trim().length < 100 && process.env.GEMINI_API_KEY) {
-      try {
-        console.log("Extracted text is very short. Using Gemini for OCR and layout parsing...");
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const result = await model.generateContent([
+    {
+      inlineData: {
+        data: dataBuffer.toString("base64"),
+        mimeType: "application/pdf",
+      },
+    },
+    `Extract ALL text from this PDF document exactly as written.
+If the PDF contains scanned pages or images with text, perform OCR on them.
+Preserve reading order and paragraph breaks.
+Do NOT add summaries, commentary, or formatting — output only the raw extracted text.`,
+  ]);
 
-        const response = await model.generateContent([
-          {
-            inlineData: {
-              data: dataBuffer.toString("base64"),
-              mimeType: "application/pdf"
-            }
-          },
-          "Please extract all text from this PDF document. If it is a scanned document or has images/charts containing text, perform OCR to extract all of the text. Maintain the reading order and layout as much as possible. Do not add any summary or commentary, just output the extracted text."
-        ]);
+  const text = result.response.text().trim();
 
-        const geminiText = response.response.text();
-        if (geminiText && geminiText.trim().length > text.trim().length) {
-          console.log(`Successfully extracted ${geminiText.length} characters using Gemini.`);
-          return geminiText;
-        }
-      } catch (geminiErr) {
-        console.error("Gemini PDF parsing failed:", geminiErr);
-      }
-    }
+  if (!text || text.length < 20) {
+    throw new Error(
+      "Could not extract readable text from this PDF. The file may be empty, password-protected, or contain only non-textual content."
+    );
+  }
 
-    return text;
-  };
+  return text;
+};

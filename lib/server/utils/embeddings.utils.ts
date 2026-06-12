@@ -1,33 +1,24 @@
-let extractor: any = null;
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export const getEmbedding = async (text: string) => {
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+/**
+ * Generate a 768-dimensional embedding using Gemini gemini-embedding-001.
+ * The DB schema uses vector(768) – make sure your Prisma migration matches.
+ */
+export const getEmbedding = async (text: string): Promise<number[]> => {
   try {
-    console.log("Loading embedding model");
-
-    if (!extractor) {
-      const transformers =
-        await import("@xenova/transformers");
-
-      console.log("Transformers imported");
-
-      extractor =
-        await transformers.pipeline(
-          "feature-extraction",
-          "Xenova/all-MiniLM-L6-v2"
-        );
-
-      console.log("Pipeline created");
-    }
-
-    const output = await extractor(text, {
-      pooling: "mean",
-      normalize: true,
+    const model = genAI.getGenerativeModel({
+      model: "gemini-embedding-001",
     });
 
-    return Array.from(output.data);
-
-  } catch (err) {
-    console.error("EMBEDDING ERROR:", err);
-    throw err;
+    const result = await model.embedContent({
+      content: { role: "user", parts: [{ text }] },
+      outputDimensionality: 768,
+    } as any);
+    return result.embedding.values;
+  } catch (error) {
+    console.error("Embedding Error:", error);
+    throw error;
   }
 };

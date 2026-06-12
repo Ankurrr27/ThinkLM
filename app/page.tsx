@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   FileText,
@@ -30,6 +34,16 @@ const features: Array<{
 ];
 
 export default function HomePage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // If a JWT token exists the user is already logged in — skip the landing page
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.replace("/dashboard");
+    }
+  }, [router]);
+
   return (
     <>
       {/* ── Sticky navbar ─────────────────────────────────────── */}
@@ -106,4 +120,3 @@ export default function HomePage() {
     </>
   );
 }
-

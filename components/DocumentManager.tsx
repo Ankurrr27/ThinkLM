@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 import { FileText, Trash2, Upload, Search, FileUp, Loader2, Info } from "lucide-react";
 import { getDocuments, deleteDocument, uploadDocument } from "../services/document";
 
@@ -70,7 +71,7 @@ export default function DocumentManager({
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
       if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-        alert("Only PDF files are supported.");
+        toast.error("Only PDF files are supported.");
         return;
       }
       setSelectedFile(file);
@@ -81,7 +82,7 @@ export default function DocumentManager({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-        alert("Only PDF files are supported.");
+        toast.error("Only PDF files are supported.");
         return;
       }
       setSelectedFile(file);
@@ -104,16 +105,23 @@ export default function DocumentManager({
       if (fileInputRef.current) fileInputRef.current.value = "";
       await loadDocs();
       onDocumentsChange?.();
+      toast.success("Document uploaded and indexed successfully!");
     } catch (err) {
+      const status = axios.isAxiosError(err) ? err.response?.status : undefined;
       const msg = axios.isAxiosError(err) ? err.response?.data?.message : undefined;
-      alert(msg || "Upload failed.");
+
+      if (status === 429) {
+        toast.error("Gemini API quota exceeded. Get a valid API key at aistudio.google.com", { duration: 6000 });
+      } else {
+        toast.error(msg || "Upload failed. Please try again.");
+      }
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (docId: string) => {
-    if (!confirm("Are you sure you want to delete this document? All associated embeddings and chat history references will be removed.")) return;
+    if (!confirm("Are you sure you want to delete this document?")) return;
     const token = localStorage.getItem("token");
     if (!token) return;
 
@@ -122,8 +130,9 @@ export default function DocumentManager({
       await deleteDocument(docId, token);
       await loadDocs();
       onDocumentsChange?.();
-    } catch (err) {
-      alert("Delete failed.");
+      toast.success("Document deleted.");
+    } catch {
+      toast.error("Delete failed. Please try again.");
     } finally {
       setDeletingId(null);
     }

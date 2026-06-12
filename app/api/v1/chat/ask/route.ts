@@ -1,3 +1,6 @@
+export const runtime = "nodejs";
+export const maxDuration = 120;
+
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUserId } from "@/lib/server/utils/auth";
 import { verifyWorkspaceAccess } from "@/lib/server/utils/workspace-auth.utils";
@@ -8,108 +11,63 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("STEP 1 - Route Started");
-
     const userId = getAuthUserId(req);
-
     if (!userId) {
-      console.log("STEP 2 - Unauthorized");
-
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
         { status: 401 }
       );
     }
 
-    console.log("STEP 3 - User Authenticated");
-
     const body = await req.json();
     const { question, workspaceId } = body;
 
-    console.log("STEP 4 - Body Parsed", {
-      question,
-      workspaceId,
-    });
-
-    await verifyWorkspaceAccess(
-      workspaceId,
-      userId
-    );
-
-    console.log("STEP 5 - Workspace Verified");
-
-    const queryEmbedding =
-      new Array(384).fill(0);
-
-    console.log("STEP 6 - Embedding Created");
-
-    const chunks: any =
-      await searchSimilarChunks({
-        embedding: queryEmbedding,
-        workspaceId,
-      });
-
-    console.log(
-      "STEP 7 - Search Completed",
-      chunks?.length
-    );
-
-    const context =
-      chunks
-        .map((chunk: any) => chunk.content)
-        .join("\n\n");
-
-    console.log("STEP 8 - Context Created");
-
-    const answer =
-      await generateAnswer(
-        question,
-        context
-      );
-
-    console.log("STEP 9 - Answer Generated");
-
-    let chat =
-      await prisma.chat.findFirst({
-        where: { workspaceId },
-      });
-
-    console.log("STEP 10 - Chat Lookup");
-
-    if (!chat) {
-      chat =
-        await prisma.chat.create({
-          data: { workspaceId },
-        });
-
-      console.log(
-        "STEP 11 - Chat Created"
+    if (!question?.trim()) {
+      return NextResponse.json(
+        { success: false, message: "Question is required" },
+        { status: 400 }
       );
     }
 
-    await prisma.message.create({
-      data: {
-        role: "user",
-        content: question,
-        chatId: chat.id,
-      },
+    if (!workspaceId) {
+      return NextResponse.json(
+        { success: false, message: "workspaceId is required" },
+        { status: 400 }
+      );
+    }
+
+    await verifyWorkspaceAccess(workspaceId, userId);
+
+    // Compute the real query embedding via Gemini (fixes the broken zero-vector bug)
+    const queryEmbedding = await getEmbedding(question.trim());
+
+    // Semantic search: find most relevant chunks from uploaded documents
+    const chunks: any[] = (await searchSimilarChunks({
+      embedding: queryEmbedding,
+      workspaceId,
+      limit: 6,
+    })) as any[];
+
+    // Build context from top matching chunks
+    const context = chunks
+      .map((chunk: any) => chunk.content)
+      .join("\n\n---\n\n");
+
+    // Generate a crisp, grounded answer via Gemini
+    const answer = await generateAnswer(question.trim(), context);
+
+    // Persist chat & messages
+    let chat = await prisma.chat.findFirst({ where: { workspaceId } });
+    if (!chat) {
+      chat = await prisma.chat.create({ data: { workspaceId } });
+    }
+
+    await prisma.message.createMany({
+      data: [
+        { role: "user", content: question.trim(), chatId: chat.id },
+        { role: "assistant", content: answer, chatId: chat.id },
+      ],
     });
-
-    console.log(
-      "STEP 12 - User Message Saved"
-    );
-
-    await prisma.message.create({
-      data: {
-        role: "assistant",
-        content: answer,
-        chatId: chat.id,
-      },
-    });
-
-    console.log(
-      "STEP 13 - Assistant Message Saved"
-    );
 
     return NextResponse.json({
       success: true,
@@ -117,36 +75,10 @@ export async function POST(req: NextRequest) {
       answer,
       matches: chunks,
     });
-
   } catch (error: any) {
-
-    console.error(
-      "==================== ERROR ===================="
-    );
-
-    console.error("NAME:", error?.name);
-
-    console.error(
-      "MESSAGE:",
-      error?.message
-    );
-
-    console.error(
-      "STACK:",
-      error?.stack
-    );
-
-    console.error(
-      "FULL ERROR:",
-      error
-    );
-
+    console.error("Chat Ask Error:", error?.message, error?.stack);
     return NextResponse.json(
-      {
-        success: false,
-        name: error?.name,
-        message: error?.message,
-      },
+      { success: false, message: error?.message || "Internal server error" },
       { status: 500 }
     );
   }

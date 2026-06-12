@@ -1,3 +1,6 @@
+export const runtime = "nodejs";
+export const maxDuration = 300;
+
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUserId } from "@/lib/server/utils/auth";
 import { uploadDocumentService } from "@/lib/server/services/document.service";
@@ -19,8 +22,22 @@ export async function POST(req: NextRequest) {
     const workspaceId = formData.get("workspaceId") as string | null;
 
     if (!file) {
+
+      
       return NextResponse.json({ success: false, message: "No file uploaded" }, { status: 400 });
     }
+
+    const MAX_SIZE = 20 * 1024 * 1024; // 20 MB
+
+if (file.size > MAX_SIZE) {
+  return NextResponse.json(
+    {
+      success: false,
+      message: "PDF size exceeds 20 MB",
+    },
+    { status: 400 }
+  );
+}
 
     if (!workspaceId) {
       return NextResponse.json({ success: false, message: "Workspace is required" }, { status: 400 });
@@ -59,9 +76,28 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
+    const msg: string = error?.message || "";
+
+    // Gemini API rate limit / quota exceeded
+    if (msg.includes("429") || msg.includes("Too Many Requests") || msg.includes("quota")) {
+      return NextResponse.json(
+        { success: false, message: "Gemini API quota exceeded. Please check your API key at aistudio.google.com or try again later." },
+        { status: 429 }
+      );
+    }
+
+    // Auth failure
+    if (msg.includes("Unauthorized") || msg.includes("Workspace not found")) {
+      return NextResponse.json(
+        { success: false, message: msg },
+        { status: 403 }
+      );
+    }
+
+    console.error("Upload error:", msg);
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to upload document" },
-      { status: 400 }
+      { success: false, message: msg || "Failed to upload document" },
+      { status: 500 }
     );
   }
 }

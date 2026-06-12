@@ -24,9 +24,12 @@ export async function GET(
       { status: 200 }
     );
   } catch (error: any) {
+    const status = error.message?.includes("Unauthorized") ? 401
+      : error.message?.includes("not found") ? 404
+      : 400;
     return NextResponse.json(
       { success: false, message: error.message || "Failed to get documents" },
-      { status: 400 }
+      { status }
     );
   }
 }
@@ -50,9 +53,12 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error: any) {
+    const status = error.message?.includes("Unauthorized") ? 401
+      : error.message?.includes("not found") ? 404
+      : 400;
     return NextResponse.json(
       { success: false, message: error.message || "Failed to delete document" },
-      { status: 400 }
+      { status }
     );
   }
 }

@@ -31,6 +31,16 @@ export const getWorkspaceDocumentsService =
         where: {
           workspaceId,
         },
+        select: {
+          id: true,
+          filename: true,
+          mimetype: true,
+          size: true,
+          uploadedAt: true,
+          workspaceId: true,
+          filepath: true,
+          // fileData intentionally excluded — raw PDF bytes cannot be JSON-serialised
+        },
         orderBy: {
           uploadedAt: "desc",
         },
@@ -48,9 +58,16 @@ export const deleteDocumentService =
       await prisma.document.findFirst({
         where: {
           id: documentId,
-          workspace: {
-            userId,
-          },
+          workspace: { userId },
+        },
+        select: {
+          id: true,
+          filename: true,
+          mimetype: true,
+          size: true,
+          uploadedAt: true,
+          workspaceId: true,
+          filepath: true,
         },
       });
 

@@ -3,7 +3,7 @@ CREATE EXTENSION IF NOT EXISTS vector;
 CREATE TABLE IF NOT EXISTS "DocumentChunk" (
     "id" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "embedding" vector(384) NOT NULL,
+    "embedding" vector(768) NOT NULL,
     "chunkIndex" INTEGER NOT NULL,
     "documentId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

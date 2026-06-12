@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
 import { Menu } from "lucide-react";
 
@@ -13,10 +14,29 @@ export default function AppLayout({
   workspaceId?: string;
   rightPanel?: React.ReactNode;
 }) {
-  const [leftOpen, setLeftOpen] = useState(false);
+  const router   = useRouter();
+  const pathname = usePathname();
+  const [leftOpen, setLeftOpen]   = useState(false);
+  const [authed,   setAuthed]     = useState(false);
 
-  const openLeft  = useCallback(() => setLeftOpen(true), []);
+  // Guard: if no token exists, kick to /login immediately
+  useEffect(() => {
+    const token =
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("token");
+
+    if (!token) {
+      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+    } else {
+      setAuthed(true);
+    }
+  }, [router, pathname]);
+
+  const openLeft  = useCallback(() => setLeftOpen(true),  []);
   const closeLeft = useCallback(() => setLeftOpen(false), []);
+
+  // Render nothing until auth check completes (prevents flash of protected UI)
+  if (!authed) return null;
 
   return (
     <div className="app-shell">
