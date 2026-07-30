@@ -27,13 +27,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: "No file uploaded" }, { status: 400 });
     }
 
-    const MAX_SIZE = 20 * 1024 * 1024; // 20 MB
+    const MAX_SIZE = 4.5 * 1024 * 1024; // 4.5 MB — Vercel serverless body limit
 
 if (file.size > MAX_SIZE) {
   return NextResponse.json(
     {
       success: false,
-      message: "PDF size exceeds 20 MB",
+      message: "PDF size exceeds 4.5 MB (Vercel limit)",
     },
     { status: 400 }
   );
@@ -59,16 +59,22 @@ if (file.size > MAX_SIZE) {
       workspaceId,
     });
 
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      const embedding = await getEmbedding(chunk) as number[];
-
-      await storeChunkEmbedding({
-        content: chunk,
-        embedding,
-        chunkIndex: i,
-        documentId: document.id,
-      });
+    // Process chunks in parallel batches of 5 to stay within serverless timeouts
+    // while respecting Gemini API rate limits
+    const BATCH_SIZE = 5;
+    for (let batchStart = 0; batchStart < chunks.length; batchStart += BATCH_SIZE) {
+      const batch = chunks.slice(batchStart, batchStart + BATCH_SIZE);
+      await Promise.all(
+        batch.map(async (chunk, idx) => {
+          const embedding = await getEmbedding(chunk) as number[];
+          await storeChunkEmbedding({
+            content: chunk,
+            embedding,
+            chunkIndex: batchStart + idx,
+            documentId: document.id,
+          });
+        })
+      );
     }
 
     return NextResponse.json(

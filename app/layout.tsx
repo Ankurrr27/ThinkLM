@@ -87,11 +87,6 @@ export const metadata: Metadata = {
     shortcut: "/logo.png",
   },
 
-  // ── Theme ──────────────────────────────────────────────────────
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0f" },
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-  ],
 
   // ── Robots ─────────────────────────────────────────────────────
   robots: {
@@ -99,6 +94,13 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
+};
+
+export const viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0f" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+  ],
 };
 
 export default function RootLayout({
